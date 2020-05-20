@@ -33,13 +33,13 @@ def tagpro_dict_to_tensorflow_data(tagpro_dict):
 
 
 ## Loading Tagpro Data
-def load_tagpro_data(folder_name=None):
+def load_tagpro_data(folder_name=None, profile_id="53447af47e7269a515e5fe5d"):
     if folder_name:
         return load_tagpro_data_from_folder(folder_name)
-    return load_tagpro_data_from_web()
+    return load_tagpro_data_from_web(profile_id)
 
-def load_tagpro_data_from_web():
-    url = "https://tagpro.koalabeast.com/profile_rolling/53447af47e7269a515e5fe5d" 
+def load_tagpro_data_from_web(profile_id):
+    url = "https://tagpro.koalabeast.com/profile_rolling/" + profile_id
     r = requests.get(url)
     return r.json()
 
@@ -50,7 +50,7 @@ def load_tagpro_data_from_folder(folder_name):
         with open(filename) as f:
             d = json.load(f)
             data.append(d)
-    
+
     return data
 
 
