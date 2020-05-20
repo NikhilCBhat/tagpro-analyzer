@@ -3,14 +3,37 @@ import json
 import requests
 import tensorflow as tf
 tf.enable_eager_execution()
+import pandas as pd
 from utils import string_date_to_attributes
 
-def load_data_from_web():
+def tagpro_data_to_tensorflow_dataset(folder_name=None):
+    tagpro_data = load_tagpro_data(folder_name)
+    tagpro_csv = tagpro_data_to_tensorflow_csv(tagpro_data)
+    return generate_tensorflow_dataset(tagpro_csv)
+
+def tagpro_data_to_tensorflow_csv(tagpro_data, output_file="tagpro_ml_data.csv"):
+    tagpro_data = [tagpro_dict_to_tensorflow_data(datapoint) for datapoint in tagpro_data]
+
+
+    df = pd.DataFrame(tagpro_data, columns=['second', 'minute',  'hour', 'day',  'month',  
+    'year', 'gameMode',  'timePlayed',  'points',  'score',  'tags',  'returns',  'captures',  
+    'grabs',  'drops',  'pops',  'support',  'hold',  'prevent', 'powerups',  'potentialPowerups',  'saved', 'outcome'])
+    df["outcome"] = [int(outcome == 1) for outcome in df["outcome"]]
+    df.to_csv(output_file, index=None)
+
+    return output_file
+
+def load_tagpro_data(folder_name=None):
+    if folder_name:
+        return load_tagpro_data_from_folder(folder_name)
+    return load_tagpro_data_from_web()
+
+def load_tagpro_data_from_web():
     url = "https://tagpro.koalabeast.com/profile_rolling/53447af47e7269a515e5fe5d" 
     r = requests.get(url)
     return r.json()
 
-def load_data_from_folder(folder_name):
+def load_tagpro_data_from_folder(folder_name):
     data = []
     for i in range(300):
         filename = os.path.join(folder_name, "tagpro_{}.json".format(i))

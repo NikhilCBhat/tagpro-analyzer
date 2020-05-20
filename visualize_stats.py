@@ -7,7 +7,7 @@ import spotipy
 import spotipy.util as util
 import matplotlib.pyplot as plt
 from utils import string_date_to_attributes
-from data_collection import *
+from data_collection import load_tagpro_data
 
 outcome_to_name = {
     1: "won", 2: "lost", 3: "dc", 4: "save"
@@ -108,8 +108,8 @@ def get_genres(track_id=None, track_object=None):
 def make_plot():
 
     cmap = sns.cubehelix_palette(dark=.3, light=.8, as_cmap=True)
-    tagpro_data = load_data_from_folder(".")
-    tagpro_data = load_data_from_web()
+    tagpro_data = load_tagpro_data(".")
+    tagpro_data = load_tagpro_data()
     df = tagpro_data_to_dataframe(tagpro_data)
     df = add_extra_parameters(df)
     sns.boxplot(x="gameMode", y="score", data=df)
@@ -155,7 +155,7 @@ def generate_win_percentage_df(df):
 
 if __name__ == "__main__":
 
-    tagpro_data = load_data_from_web()
+    tagpro_data = load_tagpro_data()
     tagpro_df = tagpro_data_to_dataframe(tagpro_data)
     tagpro_df = add_extra_parameters(tagpro_df)
     songs = get_recent_spotify_songs()
