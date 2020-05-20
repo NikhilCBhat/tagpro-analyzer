@@ -6,8 +6,9 @@ from collections import defaultdict, Counter
 import spotipy
 import spotipy.util as util
 import matplotlib.pyplot as plt
-from utils import string_date_to_attributes
+from utils import string_date_to_attributes, date_to_time_elapsed
 from data_collection import load_tagpro_data
+from spotify_functions import get_spotify_api_object, get_recent_spotify_songs, get_genres
 
 outcome_to_name = {
     1: "won", 2: "lost", 3: "dc", 4: "save"
@@ -24,10 +25,6 @@ def tagpro_data_to_dataframe(data):
     
     return pd.DataFrame(tagpro_data)
 
-def date_to_time_elapsed(date):
-    second, minute, hour, day, _, _ = string_date_to_attributes(date)
-    return day*24*60*60 + hour*60*60 + minute*60 + second
-
 def add_extra_parameters(df):
     df["outcome_name"] = [outcome_to_name[outcome] for outcome in df["outcome"]]
     for i,time_unit in enumerate(["second", "minute", "hour", "day", "month", "year"]):
@@ -37,17 +34,6 @@ def add_extra_parameters(df):
     df["cumulative_sum"] = df["game_status"].cumsum()
     df["cumulative_average"] = [s/(i+1) for i,s in enumerate(list(df["cumulative_sum"]))]
     return df
-
-def get_spotify_api_object():
-    username = "nikhil_bhat"
-    scope = 'user-read-recently-played'
-    token = util.prompt_for_user_token(username, scope)
-    sp = spotipy.Spotify(auth=token)
-    return sp
-
-def get_recent_spotify_songs(num_songs=50):
-    sp = get_spotify_api_object()
-    return sp.current_user_recently_played(limit=num_songs)
 
 def get_songs_per_game(df, songs):
     game_to_songs = defaultdict(set)
@@ -70,40 +56,6 @@ def get_songs_per_game(df, songs):
                 df["song_ids"][game_number].add(song["track"]["id"])
 
     return game_to_songs, df
-
-def get_song_genres():
-    sp = get_spotify_api_object()
-    recents = get_recent_spotify_songs()
-    genre_counts = Counter()
-
-    for song in recents["items"]:
-        album = sp.album(song["track"]["album"]["id"])
-        genres = album["genres"]
-        if genres:
-            print("Album has genres")
-            for genre in genres:
-                genre_counts[genre] += 1
-        else:
-            for artist in song["track"]["artists"]:
-                sp_artist = sp.artist(artist["id"])
-                for genre in sp_artist["genres"]:
-                    genre_counts[genre] += 1
-
-def get_genres(track_id=None, track_object=None):
-    sp = get_spotify_api_object()
-    if not track_object:
-        track_object = sp.track(track_id)
-
-    album_genres = sp.album(track_object["album"]["id"])["genres"]
-    if album_genres:
-        return album_genres
-
-    artist_genres = []
-    for artist in track_object["artists"]:
-        sp_artist = sp.artist(artist["id"])
-        artist_genres.extend(sp_artist["genres"])
-
-    return artist_genres
 
 def make_plot():
 
@@ -128,11 +80,6 @@ def make_plot_2(df):
 def make_plot_3(df):
     sns.scatterplot(x="game_id", y="score", data=df, palette="Set2", hue="outcome_name", size="tags")
     plt.show()
-
-def save_songs():
-    songs = get_recent_spotify_songs()
-    with open("spotify.json", "w") as f:
-        json.dump(songs, f)
 
 def generate_win_percentage_df(df):
     genre_to_win_percentage = {}

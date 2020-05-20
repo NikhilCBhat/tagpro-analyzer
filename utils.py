@@ -9,3 +9,7 @@ def show_batch(dataset):
         print("Label: {}".format(label))
         for key, value in batch.items():
             print("{:20s}: {}".format(key,value.numpy()))
+
+def date_to_time_elapsed(date):
+    second, minute, hour, day, _, _ = string_date_to_attributes(date)
+    return day*24*60*60 + hour*60*60 + minute*60 + second

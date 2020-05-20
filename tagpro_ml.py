@@ -5,9 +5,11 @@ from data_collection import tagpro_data_to_tensorflow_dataset
 
 if __name__ == "__main__":   
 
+    ## Get Data
     training_data = tagpro_data_to_tensorflow_dataset("rolling_300_data")
     testing_data = tagpro_data_to_tensorflow_dataset()
 
+    ## Define Model & Train
     model = tf.keras.Sequential([
         tf.keras.layers.Dense(128, activation='relu'),
         tf.keras.layers.Dense(128, activation='relu'),
@@ -21,6 +23,7 @@ if __name__ == "__main__":
 
     model.fit(training_data, epochs=100)
 
+    ## Test Model
     test_loss, test_accuracy = model.evaluate(testing_data)
 
     print('\n\nTest Loss {}, Test Accuracy {}'.format(test_loss, test_accuracy))
