@@ -1,31 +1,17 @@
 import os
 import json
 import pandas as pd
-import requests
 import seaborn as sns
 from collections import defaultdict, Counter
 import spotipy
 import spotipy.util as util
 import matplotlib.pyplot as plt
+from utils import string_date_to_attributes
+from data_collection import *
 
 outcome_to_name = {
     1: "won", 2: "lost", 3: "dc", 4: "save"
 }
-
-def load_data_from_web():
-    url = "https://tagpro.koalabeast.com/profile_rolling/53447af47e7269a515e5fe5d" 
-    r = requests.get(url)
-    return r.json()
-
-def load_data_from_folder(folder_name):
-    data = []
-    for i in range(300):
-        filename = os.path.join(folder_name, "tagpro_{}.json".format(i))
-        with open(filename) as f:
-            d = json.load(f)
-            data.append(d)
-    
-    return data
 
 def tagpro_data_to_dataframe(data):
 
@@ -37,12 +23,6 @@ def tagpro_data_to_dataframe(data):
             tagpro_data[key].append(value)
     
     return pd.DataFrame(tagpro_data)
-
-def string_date_to_attributes(date):
-    hour, minute, second = date[:date.rfind(".")].split("T")[1].split(":")
-    year, month, day = date.split("T")[0].split("-")  
-
-    return [int(x) for x in [second, minute, hour, day, month, year]]
 
 def date_to_time_elapsed(date):
     second, minute, hour, day, _, _ = string_date_to_attributes(date)
