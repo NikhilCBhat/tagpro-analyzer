@@ -18,6 +18,7 @@ def create_and_train_ml_model(training_data):
     model.fit(training_data, epochs=100)
     return model
 
+
 if __name__ == "__main__":   
 
     ## Get Data
@@ -33,8 +34,6 @@ if __name__ == "__main__":
 
     ## Look at Predictions
     predictions = model.predict(testing_data)
-    for prediction, survived in zip(predictions[:10], list(testing_data)[0][1][:10]):
+    for prediction, won in zip(predictions[:10], list(testing_data)[0][1][:10]):
         prediction = tf.sigmoid(prediction).numpy()
-        print("Predicted won: {:.2%}".format(prediction[0]),
-                " | Actual outcome: ",
-                ("Won" if bool(survived) else "Lost"))
+        print("Predicted won: {:.2%}  | Actual outcome: {}".format(prediction[0], "Won" if bool(won) else "Lost"))
