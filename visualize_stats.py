@@ -1,14 +1,10 @@
-import os
-import json
 import pandas as pd
 import seaborn as sns
-from collections import defaultdict, Counter
-import spotipy
-import spotipy.util as util
+from collections import defaultdict
 import matplotlib.pyplot as plt
 from utils import string_date_to_attributes, date_to_time_elapsed
 from data_collection import load_tagpro_data
-from spotify_functions import get_spotify_api_object, get_recent_spotify_songs, get_genres
+from spotify_functions import get_recent_spotify_songs, get_genres
 
 outcome_to_name = {
     1: "won", 2: "lost", 3: "dc", 4: "save"
